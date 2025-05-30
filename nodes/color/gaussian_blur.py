@@ -3,17 +3,18 @@ Gaussian Blur Node for ComfyUI XWAVE Nodes
 Applies Gaussian blur to images.
 """
 
+import torch
+import numpy as np
+from PIL import Image
 import sys
 import os
-# Add parent directory to path to enable imports
+
+# Add parent directory to path to enable imports of effects
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-
-
-from utils.base_node import XWaveNodeBase
 from effects.gaussian_blur import gaussian_blur
 
 
-class GaussianBlurNode(XWaveNodeBase):
+class GaussianBlurNode:
     """
     Apply Gaussian blur to an image for softening or creating depth of field effects.
     """
@@ -48,28 +49,40 @@ class GaussianBlurNode(XWaveNodeBase):
     
     def process(self, image, radius, sigma=0.0):
         """
-        Process the image with Gaussian blur.
+        Process the image with gaussian blur effect.
         
         Args:
-            image: Input image tensor
+image: Input image tensor
             radius: Blur radius in pixels (0.1 to 50.0)
             sigma: Standard deviation for Gaussian kernel (0 uses radius/3.0)
         
         Returns:
             tuple: (processed_image_tensor,)
         """
-        # sigma=0.0 means None will be passed to use default calculation
-        sigma_value = None if sigma == 0.0 else sigma
+        # Convert from ComfyUI tensor format to PIL Images
+        batch_size = image.shape[0]
+        result = []
         
-        # Process the image batch
-        result = self.process_batch(
-            image,
-            gaussian_blur,
-            radius=radius,
-            sigma=sigma_value
-        )
+        for i in range(batch_size):
+            # Convert to PIL Image
+            img_array = (image[i].cpu().numpy() * 255).astype(np.uint8)
+            pil_img = Image.fromarray(img_array, mode='RGB')
+            
+            # Apply gaussian blur effect
+            processed_img = gaussian_blur(
+                pil_img,
+                radius=radius,
+
+                            sigma=sigma_value
+            )
+            
+            # Convert back to tensor format
+            result_array = np.array(processed_img).astype(np.float32) / 255.0
+            result.append(result_array)
         
-        return (result,)
+        # Stack results and convert to tensor
+        result = np.stack(result)
+        return (torch.from_numpy(result),)
 
 
 # Node display name mapping

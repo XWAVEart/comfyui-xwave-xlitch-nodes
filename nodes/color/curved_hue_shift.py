@@ -3,17 +3,18 @@ Curved hue shift node for ComfyUI XWAVE Nodes.
 Apply non-linear hue transformations using exponential curves.
 """
 
+import torch
+import numpy as np
+from PIL import Image
 import sys
 import os
-# Add parent directory to path to enable imports
+
+# Add parent directory to path to enable imports of effects
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-
-
-from utils.base_node import XWaveNodeBase
 from effects.curved_hue_shift import curved_hue_shift
 
 
-class CurvedHueShiftNode(XWaveNodeBase):
+class CurvedHueShiftNode:
     """Apply curved hue shift effects using exponential curves."""
     
     @classmethod
@@ -44,18 +45,39 @@ class CurvedHueShiftNode(XWaveNodeBase):
     
     def process(self, image, curve_value, shift_amount):
         """
-        Process the image with curved hue shift.
+        Process the image with curved hue shift effect.
         
         Args:
-            image: Input image tensor
+image: Input image tensor
             curve_value: Curve value from 1 to 360, controlling the shift curve
             shift_amount: Total shift amount in degrees
-            
+        
         Returns:
-            Processed image tensor
+            tuple: (processed_image_tensor,)
         """
-        result = self.process_batch(image, curved_hue_shift, curve_value=curve_value, shift_amount=shift_amount)
-        return (result,)
+        # Convert from ComfyUI tensor format to PIL Images
+        batch_size = image.shape[0]
+        result = []
+        
+        for i in range(batch_size):
+            # Convert to PIL Image
+            img_array = (image[i].cpu().numpy() * 255).astype(np.uint8)
+            pil_img = Image.fromarray(img_array, mode='RGB')
+            
+            # Apply curved hue shift effect
+            processed_img = curved_hue_shift(
+                pil_img,
+                curve_value=curve_value,
+                 shift_amount=shift_amount
+            )
+            
+            # Convert back to tensor format
+            result_array = np.array(processed_img).astype(np.float32) / 255.0
+            result.append(result_array)
+        
+        # Stack results and convert to tensor
+        result = np.stack(result)
+        return (torch.from_numpy(result),)
 
 
 # Node display name mapping

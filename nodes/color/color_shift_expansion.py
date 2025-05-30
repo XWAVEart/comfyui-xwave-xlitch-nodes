@@ -3,17 +3,18 @@ Color Shift Expansion Node for ComfyUI XWAVE Nodes
 Apply color shift expansion effects with customizable patterns and themes.
 """
 
+import torch
+import numpy as np
+from PIL import Image
 import sys
 import os
-# Add parent directory to path to enable imports
+
+# Add parent directory to path to enable imports of effects
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-
-
-from utils.base_node import XWaveNodeBase
 from effects.color_shift_expansion import color_shift_expansion
 
 
-class ColorShiftExpansionNode(XWaveNodeBase):
+class ColorShiftExpansionNode:
     """
     Apply color shift expansion effects to images.
     Expands colored shapes from various points with customizable patterns and themes.
@@ -83,7 +84,7 @@ class ColorShiftExpansionNode(XWaveNodeBase):
         Process the image with color shift expansion effect.
         
         Args:
-            image: Input image tensor
+image: Input image tensor
             num_points: Number of expansion points
             shift_amount: Amount of color shifting (0-20)
             expansion_type: Shape of expansion ('square', 'circle', 'diamond')
@@ -98,23 +99,46 @@ class ColorShiftExpansionNode(XWaveNodeBase):
         Returns:
             tuple: (processed_image_tensor,)
         """
-        # Process the image batch
-        result = self.process_batch(
-            image,
-            color_shift_expansion,
-            num_points=num_points,
-            shift_amount=shift_amount,
-            expansion_type=expansion_type,
-            mode=mode,
-            saturation_boost=saturation_boost,
-            value_boost=value_boost,
-            pattern_type=pattern_type,
-            color_theme=color_theme,
-            decay_factor=decay_factor,
-            seed=seed
-        )
+        # Convert from ComfyUI tensor format to PIL Images
+        batch_size = image.shape[0]
+        result = []
         
-        return (result,)
+        for i in range(batch_size):
+            # Convert to PIL Image
+            img_array = (image[i].cpu().numpy() * 255).astype(np.uint8)
+            pil_img = Image.fromarray(img_array, mode='RGB')
+            
+            # Apply color shift expansion effect
+            processed_img = color_shift_expansion(
+                pil_img,
+                num_points=num_points,
+
+                            shift_amount=shift_amount,
+
+                            expansion_type=expansion_type,
+
+                            mode=mode,
+
+                            saturation_boost=saturation_boost,
+
+                            value_boost=value_boost,
+
+                            pattern_type=pattern_type,
+
+                            color_theme=color_theme,
+
+                            decay_factor=decay_factor,
+
+                            seed=seed
+            )
+            
+            # Convert back to tensor format
+            result_array = np.array(processed_img).astype(np.float32) / 255.0
+            result.append(result_array)
+        
+        # Stack results and convert to tensor
+        result = np.stack(result)
+        return (torch.from_numpy(result),)
 
 
 # Node display name mapping

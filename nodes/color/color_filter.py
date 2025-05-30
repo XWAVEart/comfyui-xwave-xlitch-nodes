@@ -3,17 +3,18 @@ Color Filter Node for ComfyUI XWAVE Nodes
 Apply color filters with various blend modes and filter types.
 """
 
+import torch
+import numpy as np
+from PIL import Image
 import sys
 import os
-# Add parent directory to path to enable imports
+
+# Add parent directory to path to enable imports of effects
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-
-
-from utils.base_node import XWaveNodeBase
 from effects.color_filter import color_filter
 
 
-class ColorFilterNode(XWaveNodeBase):
+class ColorFilterNode:
     """
     Apply color filters to images with various blend modes and filter types.
     Supports solid colors, gradients, and custom gradient images.
@@ -63,7 +64,7 @@ class ColorFilterNode(XWaveNodeBase):
         Process the image with color filter effect.
         
         Args:
-            image: Input image tensor
+image: Input image tensor
             filter_type: Type of filter (solid, gradient, custom)
             color: Primary filter color in hex format
             blend_mode: Blend mode to use
@@ -75,20 +76,40 @@ class ColorFilterNode(XWaveNodeBase):
         Returns:
             tuple: (processed_image_tensor,)
         """
-        # Process the image batch
-        result = self.process_batch(
-            image,
-            color_filter,
-            filter_type=filter_type,
-            color=color,
-            blend_mode=blend_mode,
-            opacity=opacity,
-            gradient_color2=gradient_color2,
-            gradient_angle=gradient_angle,
-            custom_gradient=custom_gradient
-        )
+        # Convert from ComfyUI tensor format to PIL Images
+        batch_size = image.shape[0]
+        result = []
         
-        return (result,)
+        for i in range(batch_size):
+            # Convert to PIL Image
+            img_array = (image[i].cpu().numpy() * 255).astype(np.uint8)
+            pil_img = Image.fromarray(img_array, mode='RGB')
+            
+            # Apply color filter effect
+            processed_img = color_filter(
+                pil_img,
+                filter_type=filter_type,
+
+                            color=color,
+
+                            blend_mode=blend_mode,
+
+                            opacity=opacity,
+
+                            gradient_color2=gradient_color2,
+
+                            gradient_angle=gradient_angle,
+
+                            custom_gradient=custom_gradient
+            )
+            
+            # Convert back to tensor format
+            result_array = np.array(processed_img).astype(np.float32) / 255.0
+            result.append(result_array)
+        
+        # Stack results and convert to tensor
+        result = np.stack(result)
+        return (torch.from_numpy(result),)
 
 
 # Node display name mapping

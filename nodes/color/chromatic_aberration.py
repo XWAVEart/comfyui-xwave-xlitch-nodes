@@ -3,17 +3,18 @@ Advanced Chromatic Aberration Node for ComfyUI XWAVE Nodes
 Create realistic and artistic chromatic aberration effects.
 """
 
+import torch
+import numpy as np
+from PIL import Image
 import sys
 import os
-# Add parent directory to path to enable imports
+
+# Add parent directory to path to enable imports of effects
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-
-
-from utils.base_node import XWaveNodeBase
 from effects.chromatic_aberration import chromatic_aberration
 
 
-class ChromaticAberrationNode(XWaveNodeBase):
+class ChromaticAberrationNode:
     """
     Apply advanced chromatic aberration effects to images.
     Supports radial, linear, barrel, and custom patterns with various controls.
@@ -126,25 +127,39 @@ class ChromaticAberrationNode(XWaveNodeBase):
         Returns:
             tuple: (processed_image_tensor,)
         """
-        # Process the image batch
-        result = self.process_batch(
-            image,
-            chromatic_aberration,
-            intensity=intensity,
-            pattern=pattern,
-            red_shift_x=red_shift_x,
-            red_shift_y=red_shift_y,
-            blue_shift_x=blue_shift_x,
-            blue_shift_y=blue_shift_y,
-            center_x=center_x,
-            center_y=center_y,
-            falloff=falloff,
-            edge_enhancement=edge_enhancement,
-            color_boost=color_boost,
-            seed=seed if seed > 0 else None
-        )
+        # Convert from ComfyUI tensor format to PIL Images
+        batch_size = image.shape[0]
+        result = []
         
-        return (result,)
+        for i in range(batch_size):
+            # Convert to PIL Image
+            img_array = (image[i].cpu().numpy() * 255).astype(np.uint8)
+            pil_img = Image.fromarray(img_array, mode='RGB')
+            
+            # Apply chromatic aberration effect
+            processed_img = chromatic_aberration(
+                pil_img,
+                intensity=intensity,
+                pattern=pattern,
+                red_shift_x=red_shift_x,
+                red_shift_y=red_shift_y,
+                blue_shift_x=blue_shift_x,
+                blue_shift_y=blue_shift_y,
+                center_x=center_x,
+                center_y=center_y,
+                falloff=falloff,
+                edge_enhancement=edge_enhancement,
+                color_boost=color_boost,
+                seed=seed if seed > 0 else None
+            )
+            
+            # Convert back to tensor format
+            result_array = np.array(processed_img).astype(np.float32) / 255.0
+            result.append(result_array)
+        
+        # Stack results and convert to tensor
+        result = np.stack(result)
+        return (torch.from_numpy(result),)
 
 
 # Node display name mapping
