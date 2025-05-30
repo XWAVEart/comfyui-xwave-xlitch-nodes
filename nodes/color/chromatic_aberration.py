@@ -1,7 +1,4 @@
-
-Self-contained implementation with all effects included.
 """
-
 Advanced Chromatic Aberration Node for ComfyUI XWAVE Nodes
 Create realistic and artistic chromatic aberration effects.
 """
@@ -20,7 +17,6 @@ class ChromaticAberrationNode:
     def __init__(self):
         pass
 
-    
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -104,8 +100,52 @@ class ChromaticAberrationNode:
     FUNCTION = "process"
     CATEGORY = "XWAVE/Color"
     
+    def apply_displacement(self, channel, disp_x, disp_y, width, height):
+        """
+        Apply displacement to a channel using bilinear interpolation.
+        
+        Args:
+            channel (ndarray): Channel to displace
+            disp_x (ndarray): X displacement
+            disp_y (ndarray): Y displacement
+            width (int): Image width
+            height (int): Image height
+        
+        Returns:
+            ndarray: Displaced channel
+        """
+        # Create coordinate grids
+        y_coords, x_coords = np.mgrid[0:height, 0:width]
+        
+        # Calculate new coordinates
+        new_x = x_coords + disp_x
+        new_y = y_coords + disp_y
+        
+        # Clip coordinates to image bounds
+        new_x = np.clip(new_x, 0, width - 1)
+        new_y = np.clip(new_y, 0, height - 1)
+        
+        # Get integer and fractional parts
+        x0 = np.floor(new_x).astype(int)
+        x1 = np.minimum(x0 + 1, width - 1)
+        y0 = np.floor(new_y).astype(int)
+        y1 = np.minimum(y0 + 1, height - 1)
+        
+        # Calculate interpolation weights
+        wx = new_x - x0
+        wy = new_y - y0
+        
+        # Bilinear interpolation
+        interpolated = (
+            channel[y0, x0] * (1 - wx) * (1 - wy) +
+            channel[y0, x1] * wx * (1 - wy) +
+            channel[y1, x0] * (1 - wx) * wy +
+            channel[y1, x1] * wx * wy
+        )
+        
+        return interpolated
     
-        def chromatic_aberration(image, intensity=5.0, pattern='radial', red_shift_x=0.0, red_shift_y=0.0,
+    def chromatic_aberration(self, image, intensity=5.0, pattern='radial', red_shift_x=0.0, red_shift_y=0.0,
                             blue_shift_x=0.0, blue_shift_y=0.0, center_x=0.5, center_y=0.5,
                             falloff='quadratic', edge_enhancement=0.0, color_boost=1.0, seed=None):
         """
@@ -155,7 +195,7 @@ class ChromaticAberrationNode:
         # Calculate distance from center
         distance = np.sqrt(x_norm**2 + y_norm**2)
     
-        # Apply falloff FUNCTION
+        # Apply falloff function
         if falloff == 'linear':
             falloff_factor = distance
         elif falloff == 'cubic':
@@ -204,8 +244,8 @@ class ChromaticAberrationNode:
             blue_disp_y += blue_shift_y
     
         # Apply displacements
-        red_displaced = apply_displacement(red_channel, red_disp_x, red_disp_y, width, height)
-        blue_displaced = apply_displacement(blue_channel, blue_disp_x, blue_disp_y, width, height)
+        red_displaced = self.apply_displacement(red_channel, red_disp_x, red_disp_y, width, height)
+        blue_displaced = self.apply_displacement(blue_channel, blue_disp_x, blue_disp_y, width, height)
     
         # Green channel stays in place (or minimal displacement)
         green_displaced = green_channel.copy()
@@ -215,14 +255,18 @@ class ChromaticAberrationNode:
     
         # Apply edge enhancement if requested
         if edge_enhancement > 0:
-            from scipy import ndimage
-            # Create edge detection kernel
-            edge_kernel = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
-        
-            # Apply edge detection to each channel
-            for i in range(3):
-                edges = ndimage.convolve(result[:, :, i], edge_kernel, mode='reflect')
-                result[:, :, i] += edges * edge_enhancement * 0.1
+            try:
+                from scipy import ndimage
+                # Create edge detection kernel
+                edge_kernel = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
+            
+                # Apply edge detection to each channel
+                for i in range(3):
+                    edges = ndimage.convolve(result[:, :, i], edge_kernel, mode='reflect')
+                    result[:, :, i] += edges * edge_enhancement * 0.1
+            except ImportError:
+                # Skip edge enhancement if scipy is not available
+                pass
     
         # Apply color boost
         if color_boost != 1.0:
@@ -240,9 +284,9 @@ class ChromaticAberrationNode:
         # Ensure values are in valid range
         result = np.clip(result, 0, 255).astype(np.uint8)
     
-        return Image.fromarray(result) 
+        return Image.fromarray(result)
     
-        def process(self, image, intensity, pattern, red_shift_x, red_shift_y,
+    def process(self, image, intensity, pattern, red_shift_x, red_shift_y,
                 blue_shift_x, blue_shift_y, center_x, center_y, falloff,
                 edge_enhancement, color_boost, seed):
         """
@@ -299,7 +343,6 @@ class ChromaticAberrationNode:
         # Stack results and convert to tensor
         result = np.stack(result)
         return (torch.from_numpy(result),)
-
 
 
 # Node display name mapping
