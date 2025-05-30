@@ -1,7 +1,4 @@
-
-Self-contained implementation with all effects included.
 """
-
 Histogram Glitch Node for ComfyUI XWAVE Nodes
 Apply different histogram-based transformations to each color channel.
 """
@@ -20,7 +17,6 @@ class HistogramGlitchNode:
     def __init__(self):
         pass
 
-    
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -85,8 +81,7 @@ class HistogramGlitchNode:
     FUNCTION = "process"
     CATEGORY = "XWAVE/Color"
     
-    
-        def histogram_glitch(image, r_mode='solarize', g_mode='log', b_mode='gamma', 
+    def histogram_glitch(self, image, r_mode='solarize', g_mode='log', b_mode='gamma', 
                          r_freq=1.0, r_phase=0.0, g_freq=1.0, g_phase=0.0, 
                          b_freq=1.0, b_phase=0.0, gamma_val=0.5):
         """
@@ -118,7 +113,20 @@ class HistogramGlitchNode:
         # Normalize the image data to 0-1 range
         img_float = img_array.astype(np.float32) / 255.0
     
-        # Define helper FUNCTION to select transformation
+        # Define helper functions inline
+        def solarize(x, freq=1, phase=0):
+            """Apply a sine-based solarization transformation to a pixel value."""
+            return 0.5 + 0.5 * np.sin(freq * np.pi * x + phase)
+
+        def log_transform(x):
+            """Apply a logarithmic transformation to compress the dynamic range."""
+            return np.log(1 + x) / np.log(2)  # Normalize to approximately 0-1 range
+
+        def gamma_transform(x, gamma):
+            """Apply a power-law (gamma) transformation to adjust brightness/contrast."""
+            return np.power(x, gamma)
+        
+        # Define helper function to select transformation
         def get_transform(mode, freq, phase, gamma):
             if mode == 'solarize':
                 return lambda x: solarize(x, freq, phase)
@@ -144,57 +152,14 @@ class HistogramGlitchNode:
     
         # Convert back to PIL Image
         return Image.fromarray(img_array)
-
-
-    def solarize(x, freq=1, phase=0):
-        """
-        Apply a sine-based solarization transformation to a pixel value.
-
-        Args:
-            x (int or np.ndarray): Pixel value (0-1.0) or array of pixel values.
-            freq (float): Frequency of the sine wave (controls inversion frequency).
-            phase (float): Phase shift of the sine wave (shifts the inversion point).
-
-        Returns:
-            int or np.ndarray: Transformed pixel value(s) (0-1.0).
-        """
-        return 0.5 + 0.5 * np.sin(freq * np.pi * x + phase)
-
-
-    def log_transform(x):
-        """
-        Apply a logarithmic transformation to compress the dynamic range.
-
-        Args:
-            x (int or np.ndarray): Pixel value (0-1.0) or array of pixel values.
-
-        Returns:
-            int or np.ndarray: Transformed pixel value(s) (0-1.0).
-        """
-        return np.log(1 + x) / np.log(2)  # Normalize to approximately 0-1 range
-
-
-    def gamma_transform(x, gamma):
-        """
-        Apply a power-law (gamma) transformation to adjust brightness/contrast.
-
-        Args:
-            x (int or np.ndarray): Pixel value (0-1.0) or array of pixel values.
-            gamma (float): Gamma value (e.g., <1 brightens, >1 darkens).
-
-        Returns:
-            int or np.ndarray: Transformed pixel value(s) (0-1.0).
-        """
-        # Handle both single values and arrays
-        return np.power(x, gamma) 
     
-        def process(self, image, r_mode, g_mode, b_mode, r_freq, g_freq, b_freq,
+    def process(self, image, r_mode, g_mode, b_mode, r_freq, g_freq, b_freq,
                 r_phase, g_phase, b_phase, gamma_val):
         """
         Process the image with histogram glitch effect.
         
         Args:
-image: Input image tensor
+            image: Input image tensor
             r_mode: Transformation for red channel
             g_mode: Transformation for green channel
             b_mode: Transformation for blue channel
@@ -222,24 +187,15 @@ image: Input image tensor
             processed_img = self.histogram_glitch(
                 pil_img,
                 r_mode=r_mode,
-
-                            g_mode=g_mode,
-
-                            b_mode=b_mode,
-
-                            r_freq=r_freq,
-
-                            r_phase=r_phase,
-
-                            g_freq=g_freq,
-
-                            g_phase=g_phase,
-
-                            b_freq=b_freq,
-
-                            b_phase=b_phase,
-
-                            gamma_val=gamma_val
+                g_mode=g_mode,
+                b_mode=b_mode,
+                r_freq=r_freq,
+                r_phase=r_phase,
+                g_freq=g_freq,
+                g_phase=g_phase,
+                b_freq=b_freq,
+                b_phase=b_phase,
+                gamma_val=gamma_val
             )
             
             # Convert back to tensor format
@@ -249,7 +205,6 @@ image: Input image tensor
         # Stack results and convert to tensor
         result = np.stack(result)
         return (torch.from_numpy(result),)
-
 
 
 # Node display name mapping
