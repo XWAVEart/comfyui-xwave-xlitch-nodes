@@ -18,12 +18,12 @@ cd /path/to/ComfyUI/custom_nodes
 
 2. Clone this repository:
 ```bash
-git clone https://github.com/XWAVEart/comfyui-xwave-nodes
+git clone https://github.com/XWAVEart/comfyui-xwave-xlitch-nodes
 ```
 
 3. Install dependencies:
 ```bash
-cd comfyui-xwave-nodes
+cd comfyui-xwave-xlitch-nodes
 pip install -r requirements.txt
 ```
 
@@ -31,10 +31,10 @@ pip install -r requirements.txt
 
 ### Method 3: Direct Copy
 1. Download this repository as a ZIP file
-2. Extract the `comfyui-xwave-nodes` folder into your `ComfyUI/custom_nodes` directory
+2. Extract the `comfyui-xwave-xlitch-nodes` folder into your `ComfyUI/custom_nodes` directory
 3. Install dependencies:
 ```bash
-cd ComfyUI/custom_nodes/comfyui-xwave-nodes
+cd ComfyUI/custom_nodes/comfyui-xwave-xlitch-nodes
 pip install -r requirements.txt
 ```
 4. Restart ComfyUI
