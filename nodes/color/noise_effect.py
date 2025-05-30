@@ -51,7 +51,9 @@ class NoiseEffectNode:
             "optional": {
                 "noise_color": ("STRING", {
                     "default": "#FFFFFF",
-                    "multiline": False
+                    "multiline": False,
+                    "tooltip": "Base color for colored noise in hex format (e.g., #FFFFFF for white)",
+                    "display": "color"  # Hint for UI to show color picker
                 }),
                 "seed": ("INT", {
                     "default": 0,

@@ -26,7 +26,9 @@ class ColorFilterNode:
                 "filter_type": (["solid", "gradient"], {"default": "solid"}),
                 "color": ("STRING", {
                     "default": "#FF0000",
-                    "multiline": False
+                    "multiline": False,
+                    "tooltip": "Primary filter color in hex format (e.g., #FF0000 for red)",
+                    "display": "color"  # Hint for UI to show color picker
                 }),
                 "blend_mode": (["overlay", "multiply", "screen", "soft_light", "hard_light",
                                "color_dodge", "color_burn", "linear_dodge", "linear_burn", 
@@ -42,7 +44,9 @@ class ColorFilterNode:
             "optional": {
                 "gradient_color2": ("STRING", {
                     "default": "#0000FF",
-                    "multiline": False
+                    "multiline": False,
+                    "tooltip": "Secondary color for gradient filter in hex format (e.g., #0000FF for blue)",
+                    "display": "color"  # Hint for UI to show color picker
                 }),
                 "gradient_angle": ("INT", {
                     "default": 45,

@@ -78,7 +78,7 @@ for node_module in all_node_files:
 
 print(f"Total nodes loaded: {len(NODE_CLASS_MAPPINGS)}")
 
-# ComfyUI uses this to detect the extension
+# ComfyUI uses this to detect web extensions
 WEB_DIRECTORY = "./web"
 
 # Make sure we export the mappings
