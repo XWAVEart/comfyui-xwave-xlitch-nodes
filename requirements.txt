@@ -1,0 +1,9 @@
+# Core dependencies for ComfyUI XWAVE Nodes
+
+# Note: ComfyUI should already have torch installed
+# These are additional dependencies needed for the effects
+
+# Image processing
+Pillow>=9.0.0
+numpy>=1.20.0
+scipy>=1.7.0 
