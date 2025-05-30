@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from PIL import Image
+import colorsys
 
 class XWAVEPixelateNode:
     """
@@ -30,7 +31,7 @@ class XWAVEPixelateNode:
                     "step": 1,
                     "display": "number"
                 }),
-                "attribute": (["color", "brightness", "hue", "saturation", "luminance"],),
+                "attribute": (["color", "brightness", "hue", "saturation", "luminance"], {"default": "hue"}),
             }
         }
     

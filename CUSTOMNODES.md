@@ -76,3 +76,113 @@ Restart ComfyUI.
 9.
 Check the terminal for import success or failure messages. If successful, the node should appear in the "Add Node" menu under the specified CATEGORY.
 Alternatively, some tools like comfy-cli provide scaffolding commands (comfy node scaffold) to help set up the initial directory structure and files based on prompts.
+
+## Common Pitfalls and Debugging Tips
+
+Based on real-world experience, here are some common issues and how to avoid them:
+
+### 1. **Indentation Errors**
+Python is very strict about indentation. All methods within a class must be properly indented.
+```python
+# ❌ WRONG - Methods not indented
+class MyNode:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {...}
+    
+def process(self, image):  # This is outside the class!
+    return (image,)
+
+# ✅ CORRECT - All methods properly indented
+class MyNode:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {...}
+    
+    def process(self, image):  # Properly indented as class method
+        return (image,)
+```
+
+### 2. **Self-Contained Nodes**
+ComfyUI requires each node file to be completely self-contained. Avoid importing from external effect files or utilities.
+```python
+# ❌ WRONG - Importing from external files
+from ..effects.my_effect import apply_effect
+
+# ✅ CORRECT - Include all necessary functions within the node file
+class MyNode:
+    def apply_effect(self, image):
+        # Implementation here
+        pass
+```
+
+### 3. **Optional Dependencies**
+If your node uses optional libraries (like scipy), handle import errors gracefully:
+```python
+# ✅ CORRECT - Graceful handling of optional dependencies
+def process(self, image):
+    try:
+        from scipy import ndimage
+        has_scipy = True
+    except ImportError:
+        has_scipy = False
+    
+    if has_scipy:
+        # Use scipy features
+        result = ndimage.gaussian_filter(image, sigma=1.0)
+    else:
+        # Fall back to basic implementation
+        result = image  # or implement basic version
+```
+
+### 4. **Function vs FUNCTION**
+Be careful about case sensitivity. The attribute must be uppercase `FUNCTION`, not lowercase.
+```python
+# ❌ WRONG
+function = "process"
+
+# ✅ CORRECT
+FUNCTION = "process"
+```
+
+### 5. **Missing NODE_CLASS_MAPPINGS**
+Every node file must export NODE_CLASS_MAPPINGS at the module level:
+```python
+# At the end of your node file:
+NODE_CLASS_MAPPINGS = {
+    "MyNodeName": MyNodeClass
+}
+
+# Optionally add display names:
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "MyNodeName": "My Display Name"
+}
+```
+
+### 6. **Debugging Import Errors**
+When nodes fail to load, check the ComfyUI terminal output for specific error messages. Common causes:
+- Syntax errors (missing colons, parentheses)
+- Import errors (missing dependencies)
+- Indentation errors
+- Missing required attributes (CATEGORY, INPUT_TYPES, etc.)
+
+### 7. **Testing Individual Nodes**
+Create a simple test script to check if your node can be imported:
+```python
+# test_import.py
+try:
+    from your_node_file import NODE_CLASS_MAPPINGS
+    print("Import successful!")
+    print(f"Nodes found: {list(NODE_CLASS_MAPPINGS.keys())}")
+except Exception as e:
+    print(f"Import failed: {e}")
+    import traceback
+    traceback.print_exc()
+```
+
+### 8. **Memory Management**
+When processing images, be mindful of memory usage:
+- Process images in batches when possible
+- Clean up large arrays after use
+- Consider using generators for large datasets
+- Handle CUDA out-of-memory errors gracefully

@@ -23,8 +23,8 @@ class HistogramGlitchNode:
             "required": {
                 "image": ("IMAGE",),
                 "r_mode": (["solarize", "log", "gamma", "normal"], {"default": "solarize"}),
-                "g_mode": (["solarize", "log", "gamma", "normal"], {"default": "log"}),
-                "b_mode": (["solarize", "log", "gamma", "normal"], {"default": "gamma"}),
+                "g_mode": (["solarize", "log", "gamma", "normal"], {"default": "solarize"}),
+                "b_mode": (["solarize", "log", "gamma", "normal"], {"default": "solarize"}),
                 "r_freq": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.1,
@@ -47,21 +47,21 @@ class HistogramGlitchNode:
                     "display": "slider"
                 }),
                 "r_phase": ("FLOAT", {
-                    "default": 0.0,
+                    "default": 0.4,
                     "min": 0.0,
                     "max": 6.28,
                     "step": 0.01,
                     "display": "slider"
                 }),
                 "g_phase": ("FLOAT", {
-                    "default": 0.0,
+                    "default": 0.3,
                     "min": 0.0,
                     "max": 6.28,
                     "step": 0.01,
                     "display": "slider"
                 }),
                 "b_phase": ("FLOAT", {
-                    "default": 0.0,
+                    "default": 0.2,
                     "min": 0.0,
                     "max": 6.28,
                     "step": 0.01,
