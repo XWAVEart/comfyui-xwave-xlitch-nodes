@@ -3,7 +3,10 @@ ComfyUI XWAVE Nodes
 A collection of artistic glitch and image manipulation nodes for ComfyUI.
 """
 
-# This file is intentionally minimal to allow ComfyUI to load nodes individually
-# Each node file is self-contained with its own NODE_CLASS_MAPPINGS and NODE_DISPLAY_NAME_MAPPINGS
+# ComfyUI requires NODE_CLASS_MAPPINGS to recognize this as a valid node module
+# The actual nodes are loaded from subdirectories
+
+NODE_CLASS_MAPPINGS = {}
+NODE_DISPLAY_NAME_MAPPINGS = {}
 
 __version__ = "1.0.0" 

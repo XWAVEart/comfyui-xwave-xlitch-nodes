@@ -1,22 +1,16 @@
 """
 Gaussian Blur Node for ComfyUI XWAVE Nodes
-Applies Gaussian blur to images.
+Applies Gaussian blur effects to images.
 """
 
 import torch
 import numpy as np
-from PIL import Image
-import sys
-import os
-
-# Add parent directory to path to enable imports of effects
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-from effects.gaussian_blur import gaussian_blur
+from PIL import Image, ImageFilter
 
 
 class GaussianBlurNode:
     """
-    Apply Gaussian blur to an image for softening or creating depth of field effects.
+    Apply Gaussian blur to images with adjustable radius.
     """
     
     @classmethod
@@ -31,8 +25,6 @@ class GaussianBlurNode:
                     "step": 0.1,
                     "display": "slider"
                 }),
-            },
-            "optional": {
                 "sigma": ("FLOAT", {
                     "default": 0.0,
                     "min": 0.0,
@@ -47,14 +39,44 @@ class GaussianBlurNode:
     FUNCTION = "process"
     CATEGORY = "XWAVE/Color"
     
-    def process(self, image, radius, sigma=0.0):
+    def gaussian_blur(self, image, radius=5.0, sigma=None):
         """
-        Process the image with gaussian blur effect.
+        Apply Gaussian blur to an image.
         
         Args:
-image: Input image tensor
-            radius: Blur radius in pixels (0.1 to 50.0)
-            sigma: Standard deviation for Gaussian kernel (0 uses radius/3.0)
+            image (Image): PIL Image object to process.
+            radius (float): Blur radius in pixels (0.1 to 50.0).
+            sigma (float, optional): Standard deviation for Gaussian kernel. 
+                                    If None, sigma = radius / 3.0 (common approximation).
+        
+        Returns:
+            Image: Blurred image.
+        """
+        if image.mode not in ['RGB', 'RGBA', 'L']:
+            image = image.convert('RGB')
+        
+        # If sigma is not provided, use the common approximation
+        if sigma is None:
+            sigma = radius / 3.0
+        
+        # Ensure minimum values to prevent errors
+        radius = max(0.1, radius)
+        sigma = max(0.1, sigma)
+        
+        # Apply Gaussian blur using PIL's ImageFilter
+        # PIL's GaussianBlur uses radius parameter
+        blurred_image = image.filter(ImageFilter.GaussianBlur(radius=radius))
+        
+        return blurred_image
+    
+    def process(self, image, radius, sigma):
+        """
+        Process the image with Gaussian blur effect.
+        
+        Args:
+            image: Input image tensor
+            radius: Blur radius in pixels
+            sigma: Standard deviation for Gaussian kernel (0 for auto)
         
         Returns:
             tuple: (processed_image_tensor,)
@@ -69,11 +91,10 @@ image: Input image tensor
             pil_img = Image.fromarray(img_array, mode='RGB')
             
             # Apply gaussian blur effect
-            processed_img = gaussian_blur(
+            processed_img = self.gaussian_blur(
                 pil_img,
                 radius=radius,
-
-                            sigma=sigma_value
+                sigma=sigma if sigma > 0 else None
             )
             
             # Convert back to tensor format
