@@ -73,3 +73,8 @@ Thumbs.db
 # Test outputs
 test_*.png
 *.log 
+
+# Documentation
+*.md
+!README.md
+!INSTALLATION.md 
