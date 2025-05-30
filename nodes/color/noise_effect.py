@@ -56,7 +56,7 @@ class NoiseEffectNode(XWaveNodeBase):
                 "seed": ("INT", {
                     "default": 0,
                     "min": 0,
-                    "max": 0xffffffff
+                    "max": 4294967295
                 })
             }
         }
