@@ -16,15 +16,6 @@ if str(package_dir) not in sys.path:
 NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
 
-# Try to import test node at root level
-try:
-    from .test_simple_node import NODE_CLASS_MAPPINGS as test_mappings, NODE_DISPLAY_NAME_MAPPINGS as test_display
-    NODE_CLASS_MAPPINGS.update(test_mappings)
-    NODE_DISPLAY_NAME_MAPPINGS.update(test_display)
-    print("Loaded test node")
-except Exception as e:
-    print(f"Failed to load test node: {e}")
-
 # Import nodes from subdirectories
 # Since ComfyUI loads each file individually, we'll just make sure our structure is correct
 # The actual loading happens when ComfyUI scans the directories

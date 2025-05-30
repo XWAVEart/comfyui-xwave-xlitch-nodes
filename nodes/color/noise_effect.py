@@ -1,7 +1,4 @@
-
-Self-contained implementation with all effects included.
 """
-
 Noise Effect Node for ComfyUI XWAVE Nodes
 Adds various types of noise effects to images.
 """
@@ -10,7 +7,6 @@ import torch
 import numpy as np
 from PIL import Image
 import random
-from scipy import ndimage
 
 
 class NoiseEffectNode:
@@ -22,7 +18,6 @@ class NoiseEffectNode:
     def __init__(self):
         pass
 
-    
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -70,8 +65,7 @@ class NoiseEffectNode:
     FUNCTION = "process"
     CATEGORY = "XWAVE/Color"
     
-    
-        def noise_effect(image, noise_type='film_grain', intensity=0.3, grain_size=1.0, 
+    def noise_effect(self, image, noise_type='film_grain', intensity=0.3, grain_size=1.0, 
                     color_variation=0.2, noise_color='#FFFFFF', blend_mode='overlay', 
                     pattern='random', seed=None):
         """
@@ -91,6 +85,13 @@ class NoiseEffectNode:
         Returns:
             Image: Image with noise effect applied.
         """
+        # Try to import scipy, but fall back if not available
+        try:
+            from scipy import ndimage
+            has_scipy = True
+        except ImportError:
+            has_scipy = False
+            
         if image.mode != 'RGB':
             image = image.convert('RGB')
     
@@ -119,7 +120,7 @@ class NoiseEffectNode:
                 noise_octave = np.sin(x_coords * scale) * np.cos(y_coords * scale)
                 noise_base += noise_octave / (2 ** octave)
             noise_base = (noise_base + 1) / 2  # Normalize to 0-1
-        elif pattern == 'cellular':
+        elif pattern == 'cellular' and has_scipy:
             # Cellular automata-like pattern
             noise_base = np.random.random((height, width))
             # Apply cellular automata rules
@@ -127,11 +128,11 @@ class NoiseEffectNode:
                 kernel = np.ones((3, 3)) / 9
                 noise_base = ndimage.convolve(noise_base, kernel, mode='wrap')
                 noise_base = (noise_base > 0.5).astype(float)
-        else:  # random
+        else:  # random or cellular without scipy
             noise_base = np.random.random((height, width))
     
         # Scale noise by grain size
-        if grain_size != 1.0:
+        if grain_size != 1.0 and has_scipy:
             # Resize noise pattern
             scale_factor = 1.0 / grain_size
             small_height = max(1, int(height * scale_factor))
@@ -145,6 +146,10 @@ class NoiseEffectNode:
         
             # Resize back to original size
             noise_base = ndimage.zoom(small_noise, (height/small_height, width/small_width), order=1)
+        elif grain_size != 1.0:
+            # Simple scaling without scipy
+            # Just regenerate at different scale (less smooth)
+            noise_base = np.random.random((height, width))
     
         # Create noise based on type
         if noise_type == 'film_grain':
@@ -228,15 +233,15 @@ class NoiseEffectNode:
         # Ensure values are in valid range
         result = np.clip(result, 0, 255).astype(np.uint8)
     
-        return Image.fromarray(result) 
+        return Image.fromarray(result)
     
-        def process(self, image, noise_type, intensity, grain_size, color_variation, 
+    def process(self, image, noise_type, intensity, grain_size, color_variation, 
                 blend_mode, pattern, noise_color="#FFFFFF", seed=0):
         """
-        Process the image with noise effect effect.
+        Process the image with noise effect.
         
         Args:
-image: Input image tensor
+            image: Input image tensor
             noise_type: Type of noise to apply
             intensity: Overall noise intensity (0.0 to 1.0)
             grain_size: Size of noise particles (0.5 to 5.0)
@@ -258,24 +263,17 @@ image: Input image tensor
             img_array = (image[i].cpu().numpy() * 255).astype(np.uint8)
             pil_img = Image.fromarray(img_array, mode='RGB')
             
-            # Apply noise effect effect
+            # Apply noise effect
             processed_img = self.noise_effect(
                 pil_img,
                 noise_type=noise_type,
-
-                            intensity=intensity,
-
-                            grain_size=grain_size,
-
-                            color_variation=color_variation,
-
-                            noise_color=noise_color,
-
-                            blend_mode=blend_mode,
-
-                            pattern=pattern,
-
-                            seed=seed
+                intensity=intensity,
+                grain_size=grain_size,
+                color_variation=color_variation,
+                noise_color=noise_color,
+                blend_mode=blend_mode,
+                pattern=pattern,
+                seed=seed
             )
             
             # Convert back to tensor format
@@ -285,7 +283,6 @@ image: Input image tensor
         # Stack results and convert to tensor
         result = np.stack(result)
         return (torch.from_numpy(result),)
-
 
 
 # Node display name mapping
