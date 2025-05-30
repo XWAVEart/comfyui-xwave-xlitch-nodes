@@ -11,6 +11,7 @@ from PIL import Image
 def tensor_to_pil(tensor):
     """
     Convert ComfyUI tensor (BHWC format) to PIL Image.
+    Memory efficient implementation.
     
     Args:
         tensor: PyTorch tensor in BHWC format (Batch, Height, Width, Channels)
@@ -23,9 +24,10 @@ def tensor_to_pil(tensor):
     if len(tensor.shape) == 4:
         tensor = tensor[0]
     
-    # Ensure tensor is on CPU
+    # Ensure tensor is on CPU and contiguous
     if tensor.is_cuda:
         tensor = tensor.cpu()
+    tensor = tensor.contiguous()
     
     # Convert from 0-1 float to 0-255 uint8
     tensor_255 = (tensor * 255).clamp(0, 255).to(torch.uint8)
@@ -48,22 +50,19 @@ def tensor_to_pil(tensor):
 def pil_to_tensor(pil_image):
     """
     Convert PIL Image to ComfyUI tensor (BHWC format).
+    Memory efficient implementation.
     
     Args:
         pil_image: PIL.Image object
     
     Returns:
-        torch.Tensor: Tensor in BHWC format with values in [0, 1]
+        torch.Tensor: Batch tensor in BHWC format
     """
-    # Convert to RGB if not already (handles RGBA, L, etc.)
-    if pil_image.mode not in ['RGB', 'RGBA']:
-        pil_image = pil_image.convert('RGB')
-    
     # Convert to numpy array
-    np_image = np.array(pil_image).astype(np.float32) / 255.0
+    np_array = np.array(pil_image).astype(np.float32) / 255.0
     
     # Add batch dimension and convert to tensor
-    tensor = torch.from_numpy(np_image).unsqueeze(0)
+    tensor = torch.from_numpy(np_array).unsqueeze(0)
     
     return tensor
 
@@ -71,6 +70,7 @@ def pil_to_tensor(pil_image):
 def tensor_batch_to_pil_list(tensor):
     """
     Convert a batch of ComfyUI tensors to a list of PIL Images.
+    Memory efficient implementation that processes one image at a time.
     
     Args:
         tensor: PyTorch tensor in BHWC format
@@ -79,12 +79,18 @@ def tensor_batch_to_pil_list(tensor):
         list: List of PIL.Image objects
     """
     batch_size = tensor.shape[0]
-    return [tensor_to_pil(tensor[i:i+1]) for i in range(batch_size)]
+    pil_images = []
+    
+    for i in range(batch_size):
+        pil_images.append(tensor_to_pil(tensor[i:i+1]))
+    
+    return pil_images
 
 
 def pil_list_to_tensor_batch(pil_images):
     """
     Convert a list of PIL Images to a batch tensor.
+    Memory efficient implementation.
     
     Args:
         pil_images: List of PIL.Image objects
@@ -95,8 +101,19 @@ def pil_list_to_tensor_batch(pil_images):
     if not pil_images:
         raise ValueError("Empty image list provided")
     
-    tensors = [pil_to_tensor(img) for img in pil_images]
-    return torch.cat(tensors, dim=0)
+    # Process first image to get shape
+    first_tensor = pil_to_tensor(pil_images[0])
+    batch_size = len(pil_images)
+    
+    # Pre-allocate tensor with correct shape
+    result = torch.empty((batch_size, *first_tensor.shape[1:]), dtype=first_tensor.dtype)
+    result[0] = first_tensor[0]
+    
+    # Process remaining images
+    for i in range(1, batch_size):
+        result[i] = pil_to_tensor(pil_images[i])[0]
+    
+    return result
 
 
 def ensure_rgb(pil_image):

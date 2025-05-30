@@ -8,6 +8,8 @@ THE GLITCH ART REPO IS LOCATED AT: /Volumes/T7/VibeCoding/glitch_art_app
 We will be duplicating the effects found in the glitch art app into standalone comfy nodes. Do not modify the original files in glitch_art_app. 
 All new code goes in this dir: comfyui-xwave-nodes
 Make sure the modules are in the correct subdirs.
+When possible make sure we are using the same default parameters from the original glitch_art_app
+Keep in mind that we are testing on a separate machine and will not be able to import torch on this dev laptop.
 
 ## ComfyUI Node Architecture Overview
 

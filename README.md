@@ -116,6 +116,173 @@ Apply different mathematical transformations to each color channel independently
 - `r_phase`, `g_phase`, `b_phase`: Solarization phase (0.0-6.28)
 - `gamma_val`: Gamma value for gamma transformation (0.1-3.0)
 
+#### XWAVE Color Shift Expansion
+
+Apply color shift expansion effects with customizable patterns and themes. This node expands colored shapes from various points in the image, creating unique and artistic color effects.
+
+### Features
+- Multiple expansion types (square, circle, diamond)
+- Customizable color themes (full-spectrum, warm, cool, pastel)
+- Various pattern types for point placement (random, grid, edges)
+- Saturation and value boosting
+- Distance-based color influence with decay control
+- Reproducible results with seed control
+
+### Inputs
+- `image`: Input image to process
+- `num_points`: Number of expansion points (1-50)
+- `shift_amount`: Amount of color shifting (1-20)
+- `expansion_type`: Shape of expansion ('square', 'circle', 'diamond')
+- `mode`: Mode of color application ('xtreme', 'subtle', 'mono')
+- `saturation_boost`: Amount to boost saturation (0.0-1.0)
+- `value_boost`: Amount to boost brightness (0.0-1.0)
+- `pattern_type`: Pattern of color point placement ('random', 'grid', 'edges')
+- `color_theme`: Color theme to use ('full-spectrum', 'warm', 'cool', 'pastel')
+- `decay_factor`: How quickly effect fades with distance (0.0-1.0)
+- `seed`: Seed for random number generation
+
+### Tips
+- Use 'grid' pattern type for more structured effects
+- Try 'edges' pattern type for frame-like effects
+- Adjust decay_factor to control how quickly colors blend
+- Use different color themes for different moods
+- Higher shift_amount values create more dramatic effects
+- Combine with other color nodes for unique results
+
+#### XWAVE Posterize
+Reduce the number of colors in an image with optional dithering.
+
+**Features:**
+- Adjustable color levels (2-256)
+- Multiple dithering methods
+- Support for different color spaces
+- Creates retro and artistic effects
+
+**Inputs:**
+- `image`: Input image
+- `levels`: Number of color levels per channel (2-256)
+- `dither`: Dithering method:
+  - `none`: No dithering
+  - `floyd-steinberg`: Classic error diffusion
+  - `atkinson`: Sharp, high-contrast dithering
+  - `ordered`: Bayer pattern dithering
+- `color_space`: Color space for posterization:
+  - `rgb`: Standard RGB color space
+  - `hsv`: Hue-Saturation-Value space
+  - `lab`: Perceptually uniform LAB space
+
+**Tips:**
+- **Levels**: Lower values create more dramatic effects
+  - 2-4: Extreme posterization
+  - 8-16: Classic retro look
+  - 32-64: Subtle color reduction
+- **Dithering**:
+  - `floyd-steinberg`: Best for smooth gradients
+  - `atkinson`: Good for high contrast images
+  - `ordered`: Creates regular patterns
+- **Color Spaces**:
+  - `rgb`: Standard color reduction
+  - `hsv`: Better for artistic effects
+  - `lab`: More perceptually accurate
+
+#### XWAVE Curved Hue Shift
+Apply non-linear hue transformations to images using various curve types.
+
+**Features:**
+- 4 curve types: Sine, Cosine, Tangent, Exponential
+- Adjustable intensity and frequency
+- Phase control for precise timing
+- Option to preserve original luminance
+- Creates unique color effects
+
+**Inputs:**
+- `image`: Input image
+- `curve_type`: Type of curve to use:
+  - `sine`: Smooth, wave-like hue shifts
+  - `cosine`: Similar to sine but phase-shifted
+  - `tangent`: Sharp, dramatic hue changes
+  - `exponential`: Progressive hue transformations
+- `intensity`: Strength of the hue shift (0.0-1.0)
+- `frequency`: Frequency of the curve (0.1-10.0)
+- `phase`: Phase offset of the curve (0.0-6.28)
+- `preserve_luminance`: Whether to maintain original brightness
+
+**Tips:**
+- **Curve Types**:
+  - `sine`: Best for smooth, natural-looking shifts
+  - `cosine`: Good for complementary color effects
+  - `tangent`: Creates dramatic, high-contrast changes
+  - `exponential`: Useful for progressive color transformations
+- **Intensity**:
+  - Low (0.1-0.3): Subtle color variations
+  - Medium (0.4-0.6): Noticeable hue shifts
+  - High (0.7-1.0): Dramatic color changes
+- **Frequency**:
+  - Low (0.1-1.0): Gradual color transitions
+  - Medium (1.0-3.0): Balanced color shifts
+  - High (3.0-10.0): Rapid color variations
+- **Phase**:
+  - Adjust to fine-tune the timing of color changes
+  - Full rotation (0-6.28) shifts the entire color cycle
+- **Preserve Luminance**:
+  - `true`: Maintains original brightness while changing colors
+  - `false`: Allows brightness to vary with color changes
+
+#### XWAVE Color Filter
+Apply color filters with various blend modes and filter types.
+
+**Features:**
+- 3 filter types: Solid color, gradient, and custom gradient image
+- 12 blend modes for creative effects
+- Adjustable opacity
+- Support for custom gradient images
+- Horizontal and vertical gradient directions
+
+**Inputs:**
+- `image`: Input image
+- `filter_type`: Type of filter to apply:
+  - `solid`: Single color filter
+  - `gradient`: Two-color gradient filter
+  - `custom`: Custom gradient image filter
+- `color`: Start color for solid filter or gradient (hex format)
+- `end_color`: End color for gradient (hex format)
+- `gradient_direction`: Direction of gradient:
+  - `horizontal`: Left to right
+  - `vertical`: Top to bottom
+- `custom_gradient`: Custom gradient image (for 'custom' filter type)
+- `blend_mode`: How to blend the filter with the image:
+  - `normal`: Standard overlay
+  - `multiply`: Darkens the image
+  - `screen`: Lightens the image
+  - `overlay`: Combines multiply and screen
+  - `soft_light`: Subtle light/dark effect
+  - `hard_light`: Strong light/dark effect
+  - `color_dodge`: Brightens the image
+  - `color_burn`: Darkens the image
+  - `linear_dodge`: Adds colors
+  - `linear_burn`: Subtracts colors
+  - `vivid_light`: Combines color dodge and burn
+- `opacity`: Filter strength (0.0-1.0)
+
+**Tips:**
+- **Filter Types**:
+  - `solid`: Best for color grading and tinting
+  - `gradient`: Great for creative color transitions
+  - `custom`: Use your own gradient images for unique effects
+- **Blend Modes**:
+  - `multiply`/`screen`: Classic darken/lighten effects
+  - `overlay`/`soft_light`: Subtle color adjustments
+  - `color_dodge`/`burn`: Dramatic color effects
+  - `vivid_light`: High-contrast color manipulation
+- **Opacity**:
+  - Lower values (0.1-0.3): Subtle color adjustments
+  - Medium values (0.4-0.7): Noticeable color effects
+  - Higher values (0.8-1.0): Strong color transformations
+- **Custom Gradients**:
+  - Use smooth gradients for best results
+  - Gradient will be automatically resized to match input image
+  - Supports any RGB image as a gradient source
+
 ### 🎭 Pixelation Effects
 
 #### XWAVE Pixelate
@@ -234,6 +401,41 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For questions, issues, or feature requests:
 - Open an issue on [GitHub](https://github.com/XWAVEart/comfyui-xwave-xlitch-nodes)
+
+## XWAVE Chromatic Aberration
+
+Apply advanced chromatic aberration effects to your images with precise control over color channel separation and patterns.
+
+**Features:**
+- Four aberration patterns: Radial, Linear, Barrel, and Custom
+- Independent control of red and blue channel displacement
+- Adjustable center point and falloff types
+- Edge enhancement and color boosting options
+- Random seed for pattern variations
+
+**Inputs:**
+- `image`: Input image to process
+- `intensity`: Overall aberration intensity (0.0-50.0)
+- `pattern`: Aberration pattern type (radial, linear, barrel, custom)
+- `red_shift_x`: Red channel X displacement (-20.0 to 20.0)
+- `red_shift_y`: Red channel Y displacement (-20.0 to 20.0)
+- `blue_shift_x`: Blue channel X displacement (-20.0 to 20.0)
+- `blue_shift_y`: Blue channel Y displacement (-20.0 to 20.0)
+- `center_x`: Aberration center X position (0.0-1.0)
+- `center_y`: Aberration center Y position (0.0-1.0)
+- `falloff`: Distance falloff type (linear, quadratic, cubic)
+- `edge_enhancement`: Edge contrast enhancement (0.0-1.0)
+- `color_boost`: Color saturation boost (0.5-2.0)
+- `seed`: Random seed for pattern variations
+
+**Tips:**
+- Use radial pattern for realistic lens-like effects
+- Linear pattern works well for directional color separation
+- Barrel pattern creates a curved distortion effect
+- Custom pattern allows manual control of channel displacement
+- Adjust falloff type to control how the effect diminishes with distance
+- Use edge enhancement to make the effect more pronounced
+- Color boost can help maintain vibrancy when using strong effects
 
 ---
 

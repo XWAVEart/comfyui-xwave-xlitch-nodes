@@ -7,38 +7,92 @@
    - Film grain, digital, colored, salt & pepper, gaussian noise
    - Multiple blend modes and patterns
    - Seed control fixed (0 for random, 1-4294967295 for specific)
+   - Memory optimizations
 
 2. **XWaveColorChannelManipulation** ✅
    - Swap, invert, adjust, negative operations
    - Channel selection (R, G, B, RG, RB, GB)
    - Intensity control for adjust operation
+   - Memory optimizations
 
 3. **XWaveRGBChannelShift** ✅
    - Shift and mirror modes
    - Directional control (horizontal/vertical)
    - Centered channel selection
    - Chromatic aberration effects
+   - Memory optimizations
 
 4. **XWaveHistogramGlitch** ✅
    - Solarize, log, gamma, normal transformations
    - Per-channel control (R, G, B)
    - Frequency and phase control for solarization
    - Gamma value adjustment
+   - Memory optimizations
+
+5. **XWaveColorShiftExpansion** ✅
+   - Radial, linear, and spiral patterns
+   - Outward/inward expansion
+   - Adjustable expansion factor
+
+6. **XWavePosterize** ✅
+   - Adjustable color levels
+   - Multiple dithering methods
+   - Color space options
+   - Memory optimizations
+
+7. **XWaveCurvedHueShift** ✅
+   - Multiple curve types (sine, cosine, tangent, exponential)
+   - Adjustable intensity and frequency
+   - Phase control
+   - Luminance preservation option
+   - Memory optimizations
+
+8. **XWaveColorFilter** ✅
+   - Solid color, gradient, and custom gradient support
+   - 12 blend modes for creative effects
+   - Adjustable opacity
+   - Automatic gradient resizing
+   - Memory optimizations
+
+9. **XWaveChromaticAberration** ✅
+   - [x] Radial mode
+   - [x] Directional mode
+   - [x] Complex mode
+   - [x] Channel weight controls
+   - [x] Edge handling options
+   - [x] Luminance preservation
+
+10. **XWaveGaussianBlur** ✅
+    - Adjustable blur radius (0.1 to 50.0)
+    - Optional sigma control
+    - Memory optimizations
+
+11. **XWaveJPEGArtifacts** ✅
+    - Simulates JPEG compression artifacts
+    - Intensity control (0.0 to 1.0)
+    - Progressive quality degradation
+    - Memory optimizations
+
+12. **XWaveSharpenEffect** ✅
+    - Multiple sharpening methods (unsharp mask, high pass, edge enhance, custom)
+    - Adjustable intensity and radius
+    - Threshold control for selective sharpening
+    - Custom convolution kernels (Laplacian, Sobel, Prewitt)
+    - Additional edge enhancement option
+    - Memory optimizations
 
 ## In Progress
 
 ### Pixelation Effects
 - **XWavePixelate**: Already exists but needs refactoring to use base node system
+  - [ ] Block size control
+  - [ ] Pattern selection
+  - [ ] Memory optimizations
 
 ## To Be Implemented
 
 ### Color Effects (Remaining)
-5. **ColorShiftExpansion** - expanding colored shapes
-6. **Posterize** - reduce color levels with dithering
-7. **CurvedHueShift** - non-linear hue shifting
-8. **ColorFilter** - apply color filters with blend modes
-9. **ChromaticAberration** - advanced chromatic effects
-10. **VHSEffect** - vintage VHS artifacts
+13. **VHSEffect** - vintage VHS artifacts
 
 ### Pixel Sorting
 - AdvancedPixelSorting (multiple algorithms)

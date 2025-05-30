@@ -18,9 +18,9 @@ class HistogramGlitchNode(XWaveNodeBase):
         return {
             "required": {
                 "image": ("IMAGE",),
-                "r_mode": (["solarize", "log", "gamma", "normal"],),
-                "g_mode": (["solarize", "log", "gamma", "normal"],),
-                "b_mode": (["solarize", "log", "gamma", "normal"],),
+                "r_mode": (["solarize", "log", "gamma", "normal"], {"default": "solarize"}),
+                "g_mode": (["solarize", "log", "gamma", "normal"], {"default": "log"}),
+                "b_mode": (["solarize", "log", "gamma", "normal"], {"default": "gamma"}),
                 "r_freq": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.1,
@@ -64,7 +64,7 @@ class HistogramGlitchNode(XWaveNodeBase):
                     "display": "slider"
                 }),
                 "gamma_val": ("FLOAT", {
-                    "default": 1.0,
+                    "default": 0.5,
                     "min": 0.1,
                     "max": 3.0,
                     "step": 0.01,
