@@ -31,9 +31,9 @@ class PosterizeNode:
             }
         }
     
-    RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "process"
-    CATEGORY = "XWAVE/Color"
+    return_types = ("IMAGE",)
+    function = "process"
+    category = "XWAVE/Color"
     
     def posterize(self, image, levels=8, dither='none', color_space='rgb'):
         """

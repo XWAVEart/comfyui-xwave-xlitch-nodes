@@ -30,10 +30,10 @@ class XWAVEPixelateNode:
             }
         }
     
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("image",)
-    FUNCTION = "apply_pixelate"
-    CATEGORY = "XWAVE/Effects"
+    return_types = ("IMAGE",)
+    return_names = ("image",)
+    function = "apply_pixelate"
+    category = "XWAVE/Effects"
     
     def apply_pixelate(self, image, pixel_width, pixel_height, attribute):
         # Convert from ComfyUI tensor format to numpy array

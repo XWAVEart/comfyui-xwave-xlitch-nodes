@@ -1,23 +1,18 @@
 """
-JPEG Artifacts Node for ComfyUI XWAVE Nodes
-Simulates JPEG compression artifacts for glitch effects.
+Jpeg Artifacts Node for ComfyUI XWAVE Nodes
+Self-contained implementation with all effects included.
 """
 
 import torch
 import numpy as np
 from PIL import Image
-import sys
-import os
-
-# Add parent directory to path to enable imports of effects
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-from effects.jpeg_artifacts import jpeg_artifacts
+from io import BytesIO
 
 
 class JPEGArtifactsNode:
     """
-    Simulate JPEG compression artifacts by repeatedly compressing the image at low quality.
-    Perfect for creating glitchy, lo-fi effects.
+    Simulate JPEG compression artifacts for glitch effects.
+    Produces authentic JPEG artifacts by actual compression.
     """
     
     @classmethod
@@ -35,18 +30,62 @@ class JPEGArtifactsNode:
             }
         }
     
-    RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "process"
-    CATEGORY = "XWAVE/Color"
+    return_types = ("IMAGE",)
+    function = "process"
+    category = "XWAVE/Color"
+    
+    def simulate_jpeg_artifacts(self, image, intensity):
+        """
+        Simulate JPEG compression artifacts by repeatedly compressing the image at low quality.
+
+        Args:
+            image (PIL.Image): The original image to process.
+            intensity (float): A value between 0 and 1 controlling the intensity of the effect.
+                               0 for minimal artifacts, 1 for extreme artifacts.
+
+        Returns:
+            PIL.Image: The image with simulated JPEG artifacts.
+        """
+        if not 0 <= intensity <= 1:
+            raise ValueError("Intensity must be between 0 and 1.")
+
+        # Map intensity to number of iterations and quality
+        # More extreme - up to 30 iterations
+        iterations = int(1 + 29 * intensity)  # 1 to 30 iterations
+        # Allow quality to go down to 1
+        quality = int(90 - 89 * intensity)    # 90 to 1 quality
+
+        # Convert to RGB mode if the image has an alpha channel or is in a different mode
+        if image.mode != 'RGB':
+            # Create a white background for RGBA images
+            if image.mode == 'RGBA':
+                background = Image.new('RGB', image.size, (255, 255, 255))
+                # Paste the image on the background using the alpha channel as mask
+                background.paste(image, mask=image.split()[3])
+                current_image = background
+            else:
+                current_image = image.convert('RGB')
+        else:
+            current_image = image.copy()
+
+        for _ in range(iterations):
+            # Save the image to a BytesIO object with the specified quality
+            buffer = BytesIO()
+            current_image.save(buffer, format="JPEG", quality=quality)
+            # Reload the image from the buffer
+            buffer.seek(0)
+            current_image = Image.open(buffer)
+            current_image.load()  # Make sure the image data is loaded
+
+        return current_image
     
     def process(self, image, intensity):
         """
-        Process the image with jpeg artifacts effect.
+        Process the image with JPEG artifacts effect.
         
         Args:
-image: Input image tensor
-            intensity: Intensity of artifacts (0.0 to 1.0)
-                      0 = minimal artifacts, 1 = extreme artifacts
+            image: Input image tensor
+            intensity: JPEG compression intensity
         
         Returns:
             tuple: (processed_image_tensor,)
@@ -61,7 +100,7 @@ image: Input image tensor
             pil_img = Image.fromarray(img_array, mode='RGB')
             
             # Apply jpeg artifacts effect
-            processed_img = jpeg_artifacts(
+            processed_img = self.simulate_jpeg_artifacts(
                 pil_img,
                 intensity=intensity
             )

@@ -35,9 +35,9 @@ class GaussianBlurNode:
             }
         }
     
-    RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "process"
-    CATEGORY = "XWAVE/Color"
+    return_types = ("IMAGE",)
+    function = "process"
+    category = "XWAVE/Color"
     
     def gaussian_blur(self, image, radius=5.0, sigma=None):
         """
