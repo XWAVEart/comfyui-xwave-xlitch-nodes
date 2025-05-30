@@ -64,7 +64,78 @@ Adds various types of noise to images with extensive customization options.
 - `blend_mode`: How to blend noise with the image
 - `pattern`: Noise generation pattern
 - `noise_color`: Base color for colored noise (hex format)
-- `seed`: Random seed (-1 for random)
+- `seed`: Random seed (0 for random, 1-4294967295 for specific seed)
+
+#### XWAVE Color Channel Manipulation
+Manipulate color channels through swapping, inverting, adjusting, or creating negatives.
+
+**Features:**
+- 4 operations: Swap, Invert, Adjust, Negative
+- Channel control: Red, Green, Blue, or combinations
+- Intensity adjustment for fine control
+- Simple yet powerful color effects
+
+**Inputs:**
+- `image`: Input image
+- `operation`: Type of manipulation (swap, invert, adjust, negative)
+- `intensity`: Adjustment factor for operations (0.0-2.0)
+- `channels`: Channels to manipulate (e.g., "R", "G", "B", "RG", "RB", "GB")
+- `seed`: Random seed (-1 for random, currently unused)
+
+#### XWAVE RGB Channel Shift
+Creates chromatic aberration effects by shifting or mirroring RGB channels independently.
+
+**Features:**
+- 2 modes: Shift channels spatially or mirror them
+- Control which channel stays centered
+- Adjustable shift amount
+- Horizontal or vertical shifting
+- Perfect for glitch aesthetics and retro effects
+
+**Inputs:**
+- `image`: Input image
+- `mode`: Operation mode (shift or mirror)
+- `shift_amount`: Number of pixels to shift (1-100, ignored in mirror mode)
+- `direction`: Shift direction (horizontal or vertical)
+- `centered_channel`: Which channel remains unchanged (R, G, or B)
+
+#### XWAVE Histogram Glitch
+Apply different mathematical transformations to each color channel independently.
+
+**Features:**
+- 4 transformation modes per channel: Solarize, Log, Gamma, Normal
+- Independent control for R, G, B channels
+- Solarization with frequency and phase control
+- Gamma correction with adjustable power
+- Logarithmic compression for dynamic range control
+
+**Inputs:**
+- `image`: Input image
+- `r_mode`, `g_mode`, `b_mode`: Transformation mode for each channel
+- `r_freq`, `g_freq`, `b_freq`: Solarization frequency (0.1-10.0)
+- `r_phase`, `g_phase`, `b_phase`: Solarization phase (0.0-6.28)
+- `gamma_val`: Gamma value for gamma transformation (0.1-3.0)
+
+### 🎭 Pixelation Effects
+
+#### XWAVE Pixelate
+Applies traditional pixelation with attribute-based color selection.
+
+**Features:**
+- Customizable pixel block dimensions
+- Multiple attribute modes for pixel selection
+- Preserves important visual characteristics based on chosen attribute
+
+**Inputs:**
+- `image`: Input image
+- `pixel_width`: Width of each pixelated block (1-256)
+- `pixel_height`: Height of each pixelated block (1-256)
+- `attribute`: Attribute to use for pixel grouping:
+  - `color`: Most common color in each block
+  - `brightness`: Average brightness-based selection
+  - `hue`: Hue-based pixel selection
+  - `saturation`: Saturation-based selection
+  - `luminance`: Luminance-based selection
 
 ## Usage Example
 
@@ -92,6 +163,50 @@ Example workflows can be found in the `examples/` directory.
   - `add`: Brightens the image
   - `multiply`: Creates texture effects
   - `screen`: Lighter, ethereal effect
+
+### Color Channel Manipulation Tips:
+- **Swap**: Create interesting color shifts by swapping channels
+  - `RG`: Swap red and green for surreal landscapes
+  - `RB`: Swap red and blue for dramatic effects
+  - `GB`: Swap green and blue for unique tones
+- **Invert**: Invert individual channels for artistic effects
+  - Inverting single channels creates unique color palettes
+- **Adjust**: Fine-tune channel intensity
+  - Values < 1.0 reduce channel intensity
+  - Values > 1.0 boost channel intensity
+- **Negative**: Creates a full color negative effect
+
+### RGB Channel Shift Tips:
+- **Shift Mode**: Creates chromatic aberration effects
+  - Small shifts (5-15): Subtle color fringing
+  - Medium shifts (20-40): Noticeable channel separation
+  - Large shifts (50+): Extreme glitch effects
+- **Mirror Mode**: Creates symmetrical channel effects
+  - Each non-centered channel is mirrored differently
+  - Creates unique artistic distortions
+- **Centered Channel**: Choose which color dominates
+  - `R`: Red stays centered, green/blue shift
+  - `G`: Green stays centered, red/blue shift  
+  - `B`: Blue stays centered, red/green shift
+- **Direction**: Changes the axis of the effect
+  - `horizontal`: Left/right shifts or mirroring
+  - `vertical`: Up/down shifts or mirroring
+
+### Histogram Glitch Tips:
+- **Solarize**: Creates wave-like transformations
+  - Low frequency (0.1-2.0): Smooth transitions
+  - High frequency (5.0-10.0): Rapid inversions
+  - Phase shifts the wave pattern
+- **Log Transform**: Compresses bright areas
+  - Useful for high dynamic range images
+  - Creates film-like tonal curves
+- **Gamma Transform**: Power-based adjustments
+  - < 1.0: Brightens mid-tones
+  - > 1.0: Darkens mid-tones
+  - 1.0: No change
+- **Mix and Match**: Try different modes on each channel
+  - Solarize red, log green, gamma blue for unique effects
+  - Use normal mode to keep a channel unchanged
 
 ## Coming Soon
 

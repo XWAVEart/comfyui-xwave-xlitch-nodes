@@ -24,7 +24,7 @@ def noise_effect(image, noise_type='film_grain', intensity=0.3, grain_size=1.0,
         noise_color (str): Base color for colored noise in hex format.
         blend_mode (str): How to blend noise ('overlay', 'add', 'multiply', 'screen').
         pattern (str): Noise pattern ('random', 'perlin', 'cellular').
-        seed (int, optional): Random seed for reproducible results.
+        seed (int, optional): Random seed for reproducible results. 0 or None for random.
     
     Returns:
         Image: Image with noise effect applied.
@@ -32,7 +32,8 @@ def noise_effect(image, noise_type='film_grain', intensity=0.3, grain_size=1.0,
     if image.mode != 'RGB':
         image = image.convert('RGB')
     
-    if seed is not None:
+    # Handle seed - 0 means random, any other value is used as seed
+    if seed is not None and seed != 0:
         np.random.seed(seed)
         random.seed(seed)
     

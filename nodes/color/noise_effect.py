@@ -49,9 +49,9 @@ class NoiseEffectNode(XWaveNodeBase):
                     "multiline": False
                 }),
                 "seed": ("INT", {
-                    "default": -1,
-                    "min": -1,
-                    "max": 0xffffffffffffffff
+                    "default": 0,
+                    "min": 0,
+                    "max": 0xffffffff
                 })
             }
         }
@@ -61,7 +61,7 @@ class NoiseEffectNode(XWaveNodeBase):
     CATEGORY = "XWAVE/Color"
     
     def process(self, image, noise_type, intensity, grain_size, color_variation, 
-                blend_mode, pattern, noise_color="#FFFFFF", seed=-1):
+                blend_mode, pattern, noise_color="#FFFFFF", seed=0):
         """
         Process the image with noise effect.
         
@@ -74,14 +74,11 @@ class NoiseEffectNode(XWaveNodeBase):
             blend_mode: How to blend noise with image
             pattern: Noise pattern type
             noise_color: Base color for colored noise in hex format
-            seed: Random seed (-1 for random)
+            seed: Random seed (0 for random)
         
         Returns:
             tuple: (processed_image_tensor,)
         """
-        # Handle seed value
-        actual_seed = None if seed == -1 else seed
-        
         # Process the image batch
         result = self.process_batch(
             image,
@@ -93,7 +90,7 @@ class NoiseEffectNode(XWaveNodeBase):
             noise_color=noise_color,
             blend_mode=blend_mode,
             pattern=pattern,
-            seed=actual_seed
+            seed=seed
         )
         
         return (result,)
