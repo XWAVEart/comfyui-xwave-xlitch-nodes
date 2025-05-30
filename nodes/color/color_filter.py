@@ -3,8 +3,14 @@ Color Filter Node for ComfyUI XWAVE Nodes
 Apply color filters with various blend modes and filter types.
 """
 
-from ...utils.base_node import XWaveNodeBase
-from ...effects.color_filter import color_filter
+import sys
+import os
+# Add parent directory to path to enable imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+
+
+from utils.base_node import XWaveNodeBase
+from effects.color_filter import color_filter
 
 
 class ColorFilterNode(XWaveNodeBase):

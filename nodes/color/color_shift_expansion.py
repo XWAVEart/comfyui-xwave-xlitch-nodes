@@ -3,8 +3,14 @@ Color Shift Expansion Node for ComfyUI XWAVE Nodes
 Apply color shift expansion effects with customizable patterns and themes.
 """
 
-from ...utils.base_node import XWaveNodeBase
-from ...effects.color_shift_expansion import color_shift_expansion
+import sys
+import os
+# Add parent directory to path to enable imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+
+
+from utils.base_node import XWaveNodeBase
+from effects.color_shift_expansion import color_shift_expansion
 
 
 class ColorShiftExpansionNode(XWaveNodeBase):

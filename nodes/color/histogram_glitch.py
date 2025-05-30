@@ -3,8 +3,14 @@ Histogram Glitch Node for ComfyUI XWAVE Nodes
 Apply different histogram-based transformations to each color channel.
 """
 
-from ...utils.base_node import XWaveNodeBase
-from ...effects.histogram import histogram_glitch
+import sys
+import os
+# Add parent directory to path to enable imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+
+
+from utils.base_node import XWaveNodeBase
+from effects.histogram import histogram_glitch
 
 
 class HistogramGlitchNode(XWaveNodeBase):

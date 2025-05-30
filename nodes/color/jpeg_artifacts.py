@@ -3,8 +3,14 @@ JPEG Artifacts Node for ComfyUI XWAVE Nodes
 Simulates JPEG compression artifacts for glitch effects.
 """
 
-from ...utils.base_node import XWaveNodeBase
-from ...effects.jpeg_artifacts import simulate_jpeg_artifacts
+import sys
+import os
+# Add parent directory to path to enable imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+
+
+from utils.base_node import XWaveNodeBase
+from effects.jpeg_artifacts import simulate_jpeg_artifacts
 
 
 class JPEGArtifactsNode(XWaveNodeBase):

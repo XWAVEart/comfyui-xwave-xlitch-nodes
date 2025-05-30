@@ -3,8 +3,14 @@ Curved hue shift node for ComfyUI XWAVE Nodes.
 Apply non-linear hue transformations using exponential curves.
 """
 
-from ..base import XWaveNodeBase
-from ...effects.curved_hue_shift import curved_hue_shift
+import sys
+import os
+# Add parent directory to path to enable imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+
+
+from utils.base_node import XWaveNodeBase
+from effects.curved_hue_shift import curved_hue_shift
 
 
 class CurvedHueShiftNode(XWaveNodeBase):
@@ -34,6 +40,7 @@ class CurvedHueShiftNode(XWaveNodeBase):
     
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     def process(self, image, curve_value, shift_amount):
         """
@@ -47,9 +54,16 @@ class CurvedHueShiftNode(XWaveNodeBase):
         Returns:
             Processed image tensor
         """
-        return (self.apply_effect(curved_hue_shift, image, curve_value=curve_value, shift_amount=shift_amount),)
+        result = self.process_batch(image, curved_hue_shift, curve_value=curve_value, shift_amount=shift_amount)
+        return (result,)
 
 
+# Node display name mapping
 NODE_CLASS_MAPPINGS = {
-    "CurvedHueShiftNode": "XWAVE Curved Hue Shift"
+    "XWaveCurvedHueShift": CurvedHueShiftNode
+}
+
+# Display names for the UI
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "XWaveCurvedHueShift": "XWAVE Curved Hue Shift"
 } 

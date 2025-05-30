@@ -3,8 +3,14 @@ RGB Channel Shift Node for ComfyUI XWAVE Nodes
 Split and shift RGB channels for chromatic aberration effects.
 """
 
-from ...utils.base_node import XWaveNodeBase
-from ...effects.rgb_shift import split_and_shift_channels
+import sys
+import os
+# Add parent directory to path to enable imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+
+
+from utils.base_node import XWaveNodeBase
+from effects.rgb_shift import split_and_shift_channels
 
 
 class RGBChannelShiftNode(XWaveNodeBase):

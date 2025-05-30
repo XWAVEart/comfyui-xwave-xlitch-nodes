@@ -3,8 +3,14 @@ Posterize Node for ComfyUI XWAVE Nodes
 Reduce color levels with optional dithering.
 """
 
-from ...utils.base_node import XWaveNodeBase
-from ...effects.posterize import posterize
+import sys
+import os
+# Add parent directory to path to enable imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+
+
+from utils.base_node import XWaveNodeBase
+from effects.posterize import posterize
 
 
 class PosterizeNode(XWaveNodeBase):
