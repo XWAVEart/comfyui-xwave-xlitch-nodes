@@ -118,8 +118,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For questions, issues, or feature requests:
-- Open an issue on [GitHub](https://github.com/XWAVEart/comfyui-xwave-nodes)
-- Discord: [Join our server](https://discord.gg/xwave) (coming soon)
+- Open an issue on [GitHub](https://github.com/XWAVEart/comfyui-xwave-xlitch-nodes)
 
 ---
 
