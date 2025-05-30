@@ -16,6 +16,10 @@ class ChromaticAberrationNode:
     Apply advanced chromatic aberration effects to images.
     Supports radial, linear, barrel, and custom patterns with various controls.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -96,9 +100,9 @@ class ChromaticAberrationNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     
         def chromatic_aberration(image, intensity=5.0, pattern='radial', red_shift_x=0.0, red_shift_y=0.0,
@@ -151,7 +155,7 @@ class ChromaticAberrationNode:
         # Calculate distance from center
         distance = np.sqrt(x_norm**2 + y_norm**2)
     
-        # Apply falloff function
+        # Apply falloff FUNCTION
         if falloff == 'linear':
             falloff_factor = distance
         elif falloff == 'cubic':

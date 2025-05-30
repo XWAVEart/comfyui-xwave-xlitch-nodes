@@ -18,6 +18,10 @@ class ColorShiftExpansionNode:
     Apply color shift expansion effects to images.
     Expands colored shapes from various points with customizable patterns and themes.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -72,9 +76,9 @@ class ColorShiftExpansionNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     
         def color_shift_expansion(image, num_points=5, shift_amount=5, expansion_type='square', mode='xtreme', 

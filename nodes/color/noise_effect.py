@@ -18,6 +18,10 @@ class NoiseEffectNode:
     Add various types of noise effects to an image.
     Supports film grain, digital noise, colored noise, salt & pepper, and gaussian noise.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -62,9 +66,9 @@ class NoiseEffectNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     
         def noise_effect(image, noise_type='film_grain', intensity=0.3, grain_size=1.0, 

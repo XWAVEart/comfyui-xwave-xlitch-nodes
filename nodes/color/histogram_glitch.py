@@ -16,6 +16,10 @@ class HistogramGlitchNode:
     Apply different transformations to each color channel based on histogram analysis.
     Supports solarize, log, gamma, and normal transformations.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -77,9 +81,9 @@ class HistogramGlitchNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     
         def histogram_glitch(image, r_mode='solarize', g_mode='log', b_mode='gamma', 
@@ -114,7 +118,7 @@ class HistogramGlitchNode:
         # Normalize the image data to 0-1 range
         img_float = img_array.astype(np.float32) / 255.0
     
-        # Define helper function to select transformation
+        # Define helper FUNCTION to select transformation
         def get_transform(mode, freq, phase, gamma):
             if mode == 'solarize':
                 return lambda x: solarize(x, freq, phase)

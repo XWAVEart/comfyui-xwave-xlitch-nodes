@@ -13,6 +13,10 @@ from PIL import Image
 
 class CurvedHueShiftNode:
     """Apply curved hue shift effects using exponential curves."""
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -36,9 +40,9 @@ class CurvedHueShiftNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     
         def curved_hue_shift(image, curve_value=180.0, shift_amount=30.0):

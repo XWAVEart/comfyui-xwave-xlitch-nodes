@@ -13,6 +13,10 @@ class PosterizeNode:
     Reduce the number of colors in an image for artistic effect.
     Supports multiple dithering methods and color spaces.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -31,9 +35,9 @@ class PosterizeNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     def posterize(self, image, levels=8, dither='none', color_space='rgb'):
         """

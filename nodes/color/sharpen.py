@@ -14,6 +14,10 @@ class SharpenNode:
     Apply various sharpening effects to enhance image details.
     Supports unsharp mask, high-pass, edge enhancement, and custom kernels.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -60,9 +64,9 @@ class SharpenNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     def sharpen_effect(self, image, method='unsharp_mask', intensity=1.0, radius=1.0, threshold=0,
                        edge_enhancement=0.0, high_pass_radius=3.0, custom_kernel=None):

@@ -14,6 +14,10 @@ class JPEGArtifactsNode:
     Simulate JPEG compression artifacts for glitch effects.
     Produces authentic JPEG artifacts by actual compression.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -30,9 +34,9 @@ class JPEGArtifactsNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     def simulate_jpeg_artifacts(self, image, intensity):
         """

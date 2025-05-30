@@ -6,6 +6,10 @@ class XWAVEPixelateNode:
     """
     A ComfyUI node that applies pixelation effects to images.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(s):
@@ -30,10 +34,10 @@ class XWAVEPixelateNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    return_names = ("image",)
-    function = "apply_pixelate"
-    category = "XWAVE/Effects"
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image",)
+    FUNCTION = "apply_pixelate"
+    CATEGORY = "XWAVE/Effects"
     
     def apply_pixelate(self, image, pixel_width, pixel_height, attribute):
         # Convert from ComfyUI tensor format to numpy array

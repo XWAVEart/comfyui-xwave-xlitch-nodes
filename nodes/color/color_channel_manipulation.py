@@ -15,6 +15,10 @@ class ColorChannelManipulationNode:
     """
     Manipulate image color channels with swap, invert, adjust, and negative operations.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -38,9 +42,9 @@ class ColorChannelManipulationNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     
         def color_channel_manipulation(image, manipulation_type, choice, factor=None):

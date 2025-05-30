@@ -12,6 +12,10 @@ class GaussianBlurNode:
     """
     Apply Gaussian blur to images with adjustable radius.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -35,9 +39,9 @@ class GaussianBlurNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     def gaussian_blur(self, image, radius=5.0, sigma=None):
         """

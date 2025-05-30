@@ -16,6 +16,10 @@ class ColorFilterNode:
     Apply color filters to images with various blend modes and filter types.
     Supports solid colors, gradients, and custom gradient images.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -51,9 +55,9 @@ class ColorFilterNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     
         def color_filter(image, filter_type='solid', color='#FF0000', blend_mode='overlay', opacity=0.5,

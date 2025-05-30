@@ -13,6 +13,10 @@ class RGBChannelShiftNode:
     Apply RGB channel shifting effects for color separation glitches.
     Creates analog video-style color misalignment effects.
     """
+
+    def __init__(self):
+        pass
+
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -32,9 +36,9 @@ class RGBChannelShiftNode:
             }
         }
     
-    return_types = ("IMAGE",)
-    function = "process"
-    category = "XWAVE/Color"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "process"
+    CATEGORY = "XWAVE/Color"
     
     def rgb_channel_shift(self, image, shift_amount, direction, centered_channel, mode='shift'):
         """
