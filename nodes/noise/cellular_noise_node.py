@@ -239,24 +239,22 @@ class CellularNoiseNode:
                                          cx, cy, radius, current_noise_type, palette, blend_mode,
                                          center_noise, edge_noise, gradient_type, reverse_gradient)
             
-            else:  # hex layout (based on user's original script structure)
-                row_height = int(circle_size * 0.866) 
+            else:  # hex layout - matching original script logic
+                row_height = int(circle_size * 0.866)  # sqrt(3)/2 for hex packing
                 if row_height == 0: row_height = 1 
 
-                for r_idx, y_block_start in enumerate(range(0, h + radius, row_height)):
-                    x_offset_current_row = radius if r_idx % 2 != 0 else 0 # User's original logic for hex offset
-                    for x_block_start in range(x_offset_current_row, w + radius, circle_size):
-                        # These x_block_start, y_block_start are centers of hex cells
-                        cx, cy = x_block_start, y_block_start
-
-                        # Define actual block boundaries for slicing based on center and radius
-                        # Block is [cx-radius, cx+radius] and [cy-radius, cy+radius]
-                        block_tl_x, block_tl_y = cx - radius, cy - radius
-                        block_br_x, block_br_y = cx + radius, cy + radius
-
-                        eff_x0, eff_y0 = max(0, block_tl_x), max(0, block_tl_y)
-                        eff_x1, eff_y1 = min(w, block_br_x), min(h, block_br_y)
-
+                # Process hex layout row by row, similar to original script
+                for row, y0 in enumerate(range(0, h, row_height)):
+                    x_offset = (circle_size // 2) if row % 2 else 0  # Hex offset for alternating rows
+                    for x0 in range(-x_offset, w, circle_size):  # Start from -x_offset to handle edge cases
+                        # Calculate circle center based on block position (like grid layout)
+                        cx = x0 + radius
+                        cy = y0 + radius
+                        
+                        # Define block boundaries for processing
+                        eff_x0, eff_y0 = max(0, x0), max(0, y0)
+                        eff_x1, eff_y1 = min(w, x0 + circle_size), min(h, y0 + circle_size)
+                        
                         if eff_x0 >= eff_x1 or eff_y0 >= eff_y1: continue
 
                         block_slice = result_np[eff_y0:eff_y1, eff_x0:eff_x1]
