@@ -41,7 +41,12 @@ other_node_files = [
     'nodes.pixelate.pixelate_node',
 ]
 
-all_node_files = color_node_files + other_node_files
+# Noise nodes (New list)
+noise_node_files = [
+    'nodes.noise.cellular_noise_node', # Added Cellular Noise
+]
+
+all_node_files = color_node_files + other_node_files + noise_node_files # Added noise_node_files
 
 # Try to import each node
 for node_module in all_node_files:
