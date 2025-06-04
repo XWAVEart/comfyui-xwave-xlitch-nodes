@@ -139,7 +139,15 @@ class CellularNoiseNode:
         if reverse:
             grad_factor = 1 - grad_factor
         # Interpolate between center_val and edge_val
-        return center_val + (edge_val - center_val) * grad_factor
+        profile = center_val + (edge_val - center_val) * grad_factor
+        
+        # For distances beyond radius, gradually fade to zero to prevent hard edges
+        beyond_radius = dist > radius
+        if np.any(beyond_radius):
+            fade_factor = np.maximum(0, 1 - (dist - radius) / (radius * 0.5))  # Fade over half-radius distance
+            profile = np.where(beyond_radius, profile * fade_factor, profile)
+        
+        return profile
 
     def load_palette(self, palette_path):
         if not palette_path:
@@ -239,21 +247,30 @@ class CellularNoiseNode:
                                          cx, cy, radius, current_noise_type, palette, blend_mode,
                                          center_noise, edge_noise, gradient_type, reverse_gradient)
             
-            else:  # hex layout - matching original script logic
+            else:  # hex layout - ensure seamless coverage
                 row_height = int(circle_size * 0.866)  # sqrt(3)/2 for hex packing
                 if row_height == 0: row_height = 1 
+                
+                # Use smaller row_height to ensure overlap and prevent gaps
+                row_height = max(1, int(row_height * 0.9))  # Reduce by 10% to ensure overlap
 
-                # Process hex layout row by row, similar to original script
-                for row, y0 in enumerate(range(0, h, row_height)):
+                # Process hex layout with overlapping coverage
+                for row, y0 in enumerate(range(0, h + circle_size, row_height)):
                     x_offset = (circle_size // 2) if row % 2 else 0  # Hex offset for alternating rows
-                    for x0 in range(-x_offset, w, circle_size):  # Start from -x_offset to handle edge cases
-                        # Calculate circle center based on block position (like grid layout)
+                    for x0 in range(-x_offset - radius, w + radius, circle_size):  # Extended range for better coverage
+                        # Calculate circle center
                         cx = x0 + radius
                         cy = y0 + radius
                         
-                        # Define block boundaries for processing
-                        eff_x0, eff_y0 = max(0, x0), max(0, y0)
-                        eff_x1, eff_y1 = min(w, x0 + circle_size), min(h, y0 + circle_size)
+                        # Use larger processing blocks to ensure overlap
+                        block_x0 = x0 - radius // 2  # Extend block beyond circle boundary
+                        block_y0 = y0 - radius // 2
+                        block_x1 = x0 + circle_size + radius // 2
+                        block_y1 = y0 + circle_size + radius // 2
+                        
+                        # Clip to image boundaries
+                        eff_x0, eff_y0 = max(0, block_x0), max(0, block_y0)
+                        eff_x1, eff_y1 = min(w, block_x1), min(h, block_y1)
                         
                         if eff_x0 >= eff_x1 or eff_y0 >= eff_y1: continue
 
