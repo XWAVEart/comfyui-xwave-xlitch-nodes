@@ -38,6 +38,12 @@ class CellularNoiseNode:
                 }),
                 "gradient_type": (["linear", "radial"], {"default": "linear"}),
                 "reverse_gradient": ("BOOLEAN", {"default": False}),
+                "opacity": ("FLOAT", {
+                    "default": 1.0,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.01
+                }),
                 "antialias": ("BOOLEAN", {"default": False})
             },
             "optional": {
@@ -49,7 +55,7 @@ class CellularNoiseNode:
     FUNCTION = "apply_cellular_noise"
     CATEGORY = "XWAVE/Noise"  # Updated category
 
-    def blend(self, original, noise, mask, mode='overlay'):
+    def blend(self, original, noise, mask, mode='overlay', opacity=1.0):
         if mask.ndim == 2 and original.ndim == 3:
             mask = mask[..., np.newaxis]
         if noise.ndim == 2 and original.ndim == 3: # If noise is grayscale for a color image
@@ -62,21 +68,21 @@ class CellularNoiseNode:
             high = 1 - 2 * (1 - original_norm) * (1 - noise_norm)
             blended_norm = np.where(original_norm < 0.5, low, high)
             blended_0_255 = np.clip(blended_norm * 255.0, 0, 255)
-            return original * (1 - mask) + blended_0_255 * mask
+            result = original * (1 - mask) + blended_0_255 * mask
         elif mode == 'add':
-            return np.clip(original + noise * mask, 0, 255)
+            result = np.clip(original + noise * mask, 0, 255)
         elif mode == 'multiply':
             original_norm = original / 255.0
             noise_norm = noise / 255.0
             blended_norm = original_norm * noise_norm
             blended_0_255 = np.clip(blended_norm * 255.0, 0, 255)
-            return original * (1-mask) + blended_0_255 * mask
+            result = original * (1-mask) + blended_0_255 * mask
         elif mode == 'screen':
             original_norm = original / 255.0
             noise_norm = noise / 255.0
             blended_norm = 1 - (1 - original_norm) * (1 - noise_norm)
             blended_0_255 = np.clip(blended_norm * 255.0, 0, 255)
-            return original * (1-mask) + blended_0_255 * mask
+            result = original * (1-mask) + blended_0_255 * mask
         elif mode == 'soft_light':
             original_norm = original / 255.0
             noise_norm = noise / 255.0
@@ -85,7 +91,7 @@ class CellularNoiseNode:
                            (2 * original_norm - 1) * (noise_norm - noise_norm**2) + original_norm,
                            (2 * original_norm - 1) * (np.sqrt(noise_norm) - noise_norm) + original_norm)
             blended_0_255 = np.clip(res * 255.0, 0, 255)
-            return original * (1-mask) + blended_0_255 * mask
+            result = original * (1-mask) + blended_0_255 * mask
         elif mode == 'hard_light':
             original_norm = original / 255.0
             noise_norm = noise / 255.0
@@ -94,22 +100,25 @@ class CellularNoiseNode:
                            2 * original_norm * noise_norm, 
                            1 - 2 * (1 - original_norm) * (1 - noise_norm))
             blended_0_255 = np.clip(res * 255.0, 0, 255)
-            return original * (1 - mask) + blended_0_255 * mask
+            result = original * (1 - mask) + blended_0_255 * mask
         elif mode == 'color_dodge':
             # Ensure noise*mask doesn't make denominator zero or negative
             dodge_factor = noise * mask / 255.0
-            return np.clip(original / (1.0 - dodge_factor + 1e-7), 0, 255)
+            result = np.clip(original / (1.0 - dodge_factor + 1e-7), 0, 255)
         elif mode == 'color_burn':
             burn_factor = noise * mask / 255.0
-            return np.clip(255.0 - (255.0 - original) / (burn_factor + 1e-7), 0, 255)
+            result = np.clip(255.0 - (255.0 - original) / (burn_factor + 1e-7), 0, 255)
         elif mode == 'linear_dodge': # Same as add
-            return np.clip(original + noise * mask, 0, 255)
+            result = np.clip(original + noise * mask, 0, 255)
         elif mode == 'linear_burn': # (A + B - 1) or (original + noise_masked - 255)
-            return np.clip(original + noise * mask - 255.0, 0, 255)
+            result = np.clip(original + noise * mask - 255.0, 0, 255)
         elif mode == 'difference':
-            return np.clip(np.abs(original - noise * mask),0,255)
+            result = np.clip(np.abs(original - noise * mask),0,255)
         else:
             raise ValueError(f"Unknown blend mode: {mode}")
+        
+        # Apply opacity: blend between original and result based on opacity
+        return original * (1.0 - opacity) + result * opacity
 
     def generate_noise(self, shape, noise_type, palette=None):
         if noise_type == 'rgb':
@@ -170,7 +179,7 @@ class CellularNoiseNode:
     def process_block(self, result_slice, block_y_start, block_x_start, 
                       circle_center_x_in_image, circle_center_y_in_image, 
                       circle_radius, noise_type, palette, blend_mode, 
-                      center_noise, edge_noise, gradient_type, reverse_gradient):
+                      center_noise, edge_noise, gradient_type, reverse_gradient, opacity):
         # result_slice is the actual numpy array slice to modify.
         # block_y_start, block_x_start are the top-left coordinates of the block in the image
         
@@ -198,13 +207,14 @@ class CellularNoiseNode:
                 result_slice[..., c_idx],
                 noise[..., c_idx],
                 noise_amount_profile, # This is the mask, should be 0-1
-                mode=blend_mode
+                mode=blend_mode,
+                opacity=opacity
             )
         # Modification is done in-place on result_slice
 
     def apply_cellular_noise(self, image, circle_size, layout, noise_type, blend_mode, 
                            center_noise, edge_noise, gradient_type, reverse_gradient, 
-                           antialias, palette_path=""):
+                           opacity, antialias, palette_path=""):
         # antialias is not used in current backend logic, but kept for future
         processed_images = []
         if circle_size <= 0: 
@@ -245,7 +255,7 @@ class CellularNoiseNode:
                         
                         self.process_block(block_slice, eff_y0, eff_x0,
                                          cx, cy, radius, current_noise_type, palette, blend_mode,
-                                         center_noise, edge_noise, gradient_type, reverse_gradient)
+                                         center_noise, edge_noise, gradient_type, reverse_gradient, opacity)
             
             else:  # hex layout - ensure seamless coverage
                 row_height = int(circle_size * 0.866)  # sqrt(3)/2 for hex packing
@@ -278,7 +288,7 @@ class CellularNoiseNode:
                         
                         self.process_block(block_slice, eff_y0, eff_x0,
                                          cx, cy, radius, current_noise_type, palette, blend_mode,
-                                         center_noise, edge_noise, gradient_type, reverse_gradient)
+                                         center_noise, edge_noise, gradient_type, reverse_gradient, opacity)
             
             processed_images.append(result_np)
 
