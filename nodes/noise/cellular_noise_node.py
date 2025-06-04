@@ -159,15 +159,22 @@ class CellularNoiseNode:
             print(f"Warning: Error loading palette file {palette_path}: {e}")
             return None
 
-    def process_block(self, result_slice, x_coords_in_slice, y_coords_in_slice, 
+    def process_block(self, result_slice, block_y_start, block_x_start, 
                       circle_center_x_in_image, circle_center_y_in_image, 
                       circle_radius, noise_type, palette, blend_mode, 
                       center_noise, edge_noise, gradient_type, reverse_gradient):
-        # x_coords_in_slice and y_coords_in_slice are relative to the image, not the slice.
         # result_slice is the actual numpy array slice to modify.
-
-        dist = np.sqrt((x_coords_in_slice - circle_center_x_in_image)**2 + 
-                       (y_coords_in_slice - circle_center_y_in_image)**2)
+        # block_y_start, block_x_start are the top-left coordinates of the block in the image
+        
+        block_h, block_w = result_slice.shape[:2]
+        
+        # Create coordinate grid for this specific block
+        yy, xx = np.ogrid[block_y_start:block_y_start + block_h, 
+                          block_x_start:block_x_start + block_w]
+        
+        # Calculate distance from each point in the block to the circle center
+        dist = np.sqrt((xx - circle_center_x_in_image)**2 + 
+                       (yy - circle_center_y_in_image)**2)
         
         noise_amount_profile = self.gradient_profile(
             dist, circle_radius,
@@ -214,9 +221,6 @@ class CellularNoiseNode:
             radius = circle_size // 2
             if radius <= 0: radius = 1
 
-            # Create a coordinate grid for the entire image once
-            img_y_coords, img_x_coords = np.ogrid[:h, :w]
-
             if layout == 'grid':
                 for y0 in range(0, h, circle_size): # y0 is top of the block
                     for x0 in range(0, w, circle_size): # x0 is left of the block
@@ -230,10 +234,8 @@ class CellularNoiseNode:
                         if eff_x0 >= eff_x1 or eff_y0 >= eff_y1: continue # Skip if block is outside or zero-size
 
                         block_slice = result_np[eff_y0:eff_y1, eff_x0:eff_x1]
-                        x_coords_for_block = img_x_coords[eff_y0:eff_y1, eff_x0:eff_x1]
-                        y_coords_for_block = img_y_coords[eff_y0:eff_y1, eff_x0:eff_x1]
                         
-                        self.process_block(block_slice, x_coords_for_block, y_coords_for_block,
+                        self.process_block(block_slice, eff_y0, eff_x0,
                                          cx, cy, radius, current_noise_type, palette, blend_mode,
                                          center_noise, edge_noise, gradient_type, reverse_gradient)
             
@@ -258,10 +260,8 @@ class CellularNoiseNode:
                         if eff_x0 >= eff_x1 or eff_y0 >= eff_y1: continue
 
                         block_slice = result_np[eff_y0:eff_y1, eff_x0:eff_x1]
-                        x_coords_for_block = img_x_coords[eff_y0:eff_y1, eff_x0:eff_x1]
-                        y_coords_for_block = img_y_coords[eff_y0:eff_y1, eff_x0:eff_x1]
                         
-                        self.process_block(block_slice, x_coords_for_block, y_coords_for_block,
+                        self.process_block(block_slice, eff_y0, eff_x0,
                                          cx, cy, radius, current_noise_type, palette, blend_mode,
                                          center_noise, edge_noise, gradient_type, reverse_gradient)
             
